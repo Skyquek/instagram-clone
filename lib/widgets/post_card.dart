@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:instagram_flutter/models/user.dart';
 import 'package:instagram_flutter/providers/user_provider.dart';
+import 'package:instagram_flutter/resources/firestore_method.dart';
 import 'package:instagram_flutter/utils/colors.dart';
 import 'package:instagram_flutter/widgets/like_animation.dart';
 import 'package:intl/intl.dart';
@@ -93,7 +94,12 @@ class _PostCardState extends State<PostCard> {
 
           // Image Section
           GestureDetector(
-            onDoubleTap: () {
+            onDoubleTap: () async {
+              await FirestoreMethods().likePost(
+                widget.snap['postId'],
+                user.uid,
+                widget.snap['likes'],
+              );
               setState(() {
                 isLikeAnimating = true;
               });
@@ -137,14 +143,27 @@ class _PostCardState extends State<PostCard> {
           Row(
             children: [
               IconButton(
-                onPressed: () {},
+                onPressed: () async {
+                  await FirestoreMethods().likePost(
+                    widget.snap['postId'],
+                    user.uid,
+                    widget.snap['likes'],
+                  );
+                  setState(() {
+                    isLikeAnimating = true;
+                  });
+                },
                 icon: LikeAnimation(
                   isAnimating: widget.snap['likes'].contains(user.uid),
                   smallLike: true,
-                  child: const Icon(
-                    Icons.favorite,
-                    color: Colors.red,
-                  ),
+                  child: widget.snap['likes'].contains(user.uid)
+                      ? const Icon(
+                          Icons.favorite,
+                          color: Colors.red,
+                        )
+                      : const Icon(
+                          Icons.favorite_border,
+                        ),
                 ),
               ),
               IconButton(
